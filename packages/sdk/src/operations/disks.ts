@@ -23,6 +23,10 @@ import type { ListDisksQuery } from '../unraid/generated.js';
 /** A physical disk attached to the server. */
 export type PhysicalDisk = ListDisksQuery['disks'][number];
 
+// NOTE: the SDL marks several disk-geometry fields (e.g. bytesPerSector) as
+// non-null Float!, but a live Unraid 7.2 server returns null for them, which
+// nullifies the entire `disks` query. We deliberately omit those fields and
+// select only values the server reliably populates.
 const LIST_DISKS_QUERY = gql`
   query ListDisks {
     disks {
@@ -38,7 +42,6 @@ const LIST_DISKS_QUERY = gql`
       isSpinning
       firmwareRevision
       serialNum
-      bytesPerSector
       partitions {
         name
         fsType

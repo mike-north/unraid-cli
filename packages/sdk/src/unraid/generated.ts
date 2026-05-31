@@ -3419,7 +3419,7 @@ export type GetParityHistoryQuery = { parityHistory: Array<{ date: string | null
 export type ListDisksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListDisksQuery = { disks: Array<{ id: string, device: string, type: string, name: string, vendor: string, size: number, temperature: number | null, smartStatus: DiskSmartStatus, interfaceType: DiskInterfaceType, isSpinning: boolean, firmwareRevision: string, serialNum: string, bytesPerSector: number, partitions: Array<{ name: string, fsType: DiskFsType, size: number }> }> };
+export type ListDisksQuery = { disks: Array<{ id: string, device: string, type: string, name: string, vendor: string, size: number, temperature: number | null, smartStatus: DiskSmartStatus, interfaceType: DiskInterfaceType, isSpinning: boolean, firmwareRevision: string, serialNum: string, partitions: Array<{ name: string, fsType: DiskFsType, size: number }> }> };
 
 export type ListContainersQueryVariables = Exact<{ [key: string]: never; }>;
 
