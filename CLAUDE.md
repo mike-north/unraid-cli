@@ -49,7 +49,7 @@ Destructive control uses three layers (see plan): (1) a **policy floor** indepen
 ## Critical gotchas
 
 - **Do NOT enable `skipLibCheck` or disable `exactOptionalPropertyTypes`.** The official `@modelcontextprotocol/sdk` ships `streamableHttp.d.ts` with accessor types incompatible with strict checking. This is fixed by a committed **pnpm patch** (`patches/@modelcontextprotocol__sdk@1.29.0.patch`, wired via `pnpm-workspace.yaml`) that narrows the transport getters. **If you bump the SDK version**, the patch will likely fail to apply — re-create it with `pnpm patch @modelcontextprotocol/sdk@<version>` (narrow the `get sessionId/onclose/onerror/onmessage` return types, drop `| undefined`) in both `dist/esm` and `dist/cjs`.
-- **`src/web-globals.d.ts`** declares the global `HeadersInit` type. `graphql-request` and the SDK reference it but we target the Node `ES2023` lib (no `DOM`), and `@types/node` doesn't expose it as a global. Don't delete it — without it `skipLibCheck:false` fails to compile.
+- **`src/web-globals.d.ts`** declares the global `HeadersInit` type. `graphql-request` and the SDK reference it but we target the Node `ES2024` lib (no `DOM`), and `@types/node` doesn't expose it as a global. Don't delete it — without it `skipLibCheck:false` fails to compile.
 - **NodeNext + `verbatimModuleSyntax`**: relative imports MUST carry a `.js` extension (e.g. `./config.js`), and type-only imports MUST use `import type`.
 - **Zod 4** (not 3): use `z.enum`, `z.strictObject`, top-level `z.url()`; avoid deprecated `.strict()`/`z.nativeEnum`.
 - **`src/unraid/generated.ts`** is codegen output (excluded from lint/format/coverage). Edit `operations/*.graphql` + the vendored `schema.graphql` and run `pnpm codegen` instead.

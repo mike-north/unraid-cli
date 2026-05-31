@@ -14,7 +14,7 @@ Unraid 7.2+ ships a first-class GraphQL API at `/graphql`. Going through it (rat
 
 - **Unraid 7.2 or newer** with the API enabled (Settings → Management Access → API Keys).
 - A scoped **API key** (prefer least privilege — grant only the resources/actions you intend to use).
-- For self-hosting the server: **Node.js 22+** (or Docker).
+- For self-hosting the server: **Node.js 24+** (or Docker).
 
 ## Configuration
 
