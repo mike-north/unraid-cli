@@ -3504,21 +3504,21 @@ export type CreateNotificationMutationVariables = Exact<{
 }>;
 
 
-export type CreateNotificationMutation = { createNotification: { id: string, title: string, subject: string, description: string, importance: NotificationImportance, type: NotificationType, timestamp: string | null, formattedTimestamp: string | null } };
+export type CreateNotificationMutation = { createNotification: { id: string, title: string, subject: string, description: string, importance: NotificationImportance, link: string | null, type: NotificationType, timestamp: string | null, formattedTimestamp: string | null } };
 
 export type ArchiveNotificationMutationVariables = Exact<{
   id: Scalars['PrefixedID']['input'];
 }>;
 
 
-export type ArchiveNotificationMutation = { archiveNotification: { id: string, title: string, subject: string, description: string, importance: NotificationImportance, type: NotificationType, timestamp: string | null, formattedTimestamp: string | null } };
+export type ArchiveNotificationMutation = { archiveNotification: { id: string, title: string, subject: string, description: string, importance: NotificationImportance, link: string | null, type: NotificationType, timestamp: string | null, formattedTimestamp: string | null } };
 
 export type UnarchiveNotificationMutationVariables = Exact<{
   id: Scalars['PrefixedID']['input'];
 }>;
 
 
-export type UnarchiveNotificationMutation = { unreadNotification: { id: string, title: string, subject: string, description: string, importance: NotificationImportance, type: NotificationType, timestamp: string | null, formattedTimestamp: string | null } };
+export type UnarchiveNotificationMutation = { unreadNotification: { id: string, title: string, subject: string, description: string, importance: NotificationImportance, link: string | null, type: NotificationType, timestamp: string | null, formattedTimestamp: string | null } };
 
 export type ListSharesQueryVariables = Exact<{ [key: string]: never; }>;
 

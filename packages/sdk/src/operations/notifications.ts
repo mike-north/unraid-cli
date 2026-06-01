@@ -170,6 +170,7 @@ const CREATE_NOTIFICATION_MUTATION = gql`
       subject
       description
       importance
+      link
       type
       timestamp
       formattedTimestamp
@@ -210,6 +211,7 @@ const ARCHIVE_NOTIFICATION_MUTATION = gql`
       subject
       description
       importance
+      link
       type
       timestamp
       formattedTimestamp
@@ -240,6 +242,7 @@ const UNARCHIVE_NOTIFICATION_MUTATION = gql`
       subject
       description
       importance
+      link
       type
       timestamp
       formattedTimestamp

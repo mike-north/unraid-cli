@@ -14,8 +14,14 @@ import { server, testClient, graphql, HttpResponse } from './helpers.js';
 import {
   startContainer,
   stopContainer,
+  pauseContainer,
+  unpauseContainer,
+  updateContainer,
   updateAllContainers,
   startVm,
+  stopVm,
+  pauseVm,
+  resumeVm,
   createNotification,
   archiveNotification,
   unarchiveNotification,
@@ -70,6 +76,35 @@ describe('docker control', () => {
     expect(result.success).toBe(true);
     if (result.success) expect(result.data).toHaveLength(2);
   });
+
+  const containerCases = [
+    { name: 'pauseContainer', op: pauseContainer, mutation: 'PauseContainer', field: 'pause' },
+    {
+      name: 'unpauseContainer',
+      op: unpauseContainer,
+      mutation: 'UnpauseContainer',
+      field: 'unpause',
+    },
+    {
+      name: 'updateContainer',
+      op: updateContainer,
+      mutation: 'UpdateContainer',
+      field: 'updateContainer',
+    },
+  ] as const;
+
+  for (const { name, op, mutation, field } of containerCases) {
+    it(`${name} returns the resulting container state`, async () => {
+      server.use(
+        graphql.mutation(mutation, () =>
+          HttpResponse.json({ data: { docker: { [field]: containerState } } }),
+        ),
+      );
+      const result = await op(client, 'c1');
+      expect(result.success).toBe(true);
+      if (result.success) expect(result.data.id).toBe('c1');
+    });
+  }
 });
 
 describe('vm control', () => {
@@ -98,6 +133,26 @@ describe('vm control', () => {
     expect(result.success).toBe(true);
     if (result.success) expect(result.data.accepted).toBe(false);
   });
+
+  const vmCases = [
+    { name: 'stopVm', op: stopVm, mutation: 'StopVm', field: 'stop', action: 'stop' },
+    { name: 'pauseVm', op: pauseVm, mutation: 'PauseVm', field: 'pause', action: 'pause' },
+    { name: 'resumeVm', op: resumeVm, mutation: 'ResumeVm', field: 'resume', action: 'resume' },
+  ] as const;
+
+  for (const { name, op, mutation, field, action } of vmCases) {
+    it(`${name} forwards the id and shapes the action result`, async () => {
+      server.use(
+        graphql.mutation(mutation, () => HttpResponse.json({ data: { vm: { [field]: true } } })),
+      );
+      const result = await op(client, 'vm-1');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.accepted).toBe(true);
+        expect(result.data.action).toBe(action);
+      }
+    });
+  }
 });
 
 describe('notification control', () => {

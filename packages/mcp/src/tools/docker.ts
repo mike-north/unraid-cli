@@ -49,7 +49,7 @@ const CONTAINER_ACTIONS = [
   {
     tool: 'unraid_docker_update',
     title: 'Update Unraid Container',
-    verb: 'Pull the latest image for, and recreate,',
+    verb: 'Pull the latest image for and recreate',
     op: updateContainer,
   },
 ] as const satisfies readonly {
