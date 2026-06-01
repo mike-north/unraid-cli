@@ -1,9 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "ignoreExportsUsedInFile": true,
-  "workspaces": {
-    "packages/unraid-cli": {
-      "entry": ["src/index.ts", "src/bin.ts"]
-    }
-  }
+  "ignore": ["packages/sdk/src/unraid/generated.ts"],
+  "ignoreDependencies": ["msw"]
 }

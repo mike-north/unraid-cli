@@ -8,6 +8,13 @@
 
 import { Command } from 'commander';
 import { registerSystemCommands } from './commands/system.js';
+import { registerArrayCommands } from './commands/array.js';
+import { registerDiskCommands } from './commands/disks.js';
+import { registerDockerCommands } from './commands/docker.js';
+import { registerVmCommands } from './commands/vm.js';
+import { registerShareCommands } from './commands/shares.js';
+import { registerNotificationCommands } from './commands/notifications.js';
+import { registerUpsCommands } from './commands/ups.js';
 
 /**
  * Fully resolved global options derived from Commander flags.
@@ -64,6 +71,13 @@ export function createCli(): Command {
   }
 
   registerSystemCommands(program, getGlobals);
+  registerArrayCommands(program, getGlobals);
+  registerDiskCommands(program, getGlobals);
+  registerDockerCommands(program, getGlobals);
+  registerVmCommands(program, getGlobals);
+  registerShareCommands(program, getGlobals);
+  registerNotificationCommands(program, getGlobals);
+  registerUpsCommands(program, getGlobals);
 
   return program;
 }
