@@ -77,13 +77,23 @@ export function paginateList<T>(
 
   const windowed = limit === null ? all.slice(offset) : all.slice(offset, offset + limit);
 
-  let items = windowed;
-  let truncated = false;
-  // Trim from the end until the serialized payload fits the character budget.
-  while (items.length > 0 && JSON.stringify(items).length > charLimit) {
-    items = items.slice(0, -1);
-    truncated = true;
+  // The serialized length of a prefix grows monotonically with its item count,
+  // so binary-search the largest prefix that fits the character budget rather
+  // than dropping (and re-serializing) one item at a time.
+  let lo = 0;
+  let hi = windowed.length;
+  let best = 0;
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1;
+    if (JSON.stringify(windowed.slice(0, mid)).length <= charLimit) {
+      best = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
   }
+  const items = windowed.slice(0, best);
+  const truncated = items.length < windowed.length;
 
   return {
     items,

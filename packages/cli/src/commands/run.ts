@@ -7,6 +7,7 @@
  * no domain logic of its own.
  */
 
+import { InvalidArgumentError } from 'commander';
 import {
   resolveConnectionConfig,
   createClient,
@@ -48,10 +49,16 @@ export async function runAction<T>(
 }
 
 /**
- * Commander option parser for non-negative integer flags (`--limit`, `--offset`).
- * Returns the parsed number as-is (including `NaN` for bad input) — the SDK is
- * the single authority on semantic validation and returns a structured error.
+ * Commander option parser for integer flags (`--limit`, `--offset`).
+ *
+ * Rejects non-integer input at the CLI boundary (input *shape*) with a clear
+ * Commander error. Semantic validation (e.g. positivity) remains the SDK's
+ * responsibility, which returns a structured `VALIDATION_ERROR` envelope.
  */
 export function parseIntFlag(value: string): number {
-  return Number(value);
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed)) {
+    throw new InvalidArgumentError('must be an integer.');
+  }
+  return parsed;
 }

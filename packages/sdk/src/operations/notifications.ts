@@ -63,7 +63,14 @@ const LIST_NOTIFICATIONS_QUERY = gql`
   }
 `;
 
-/** List notifications by type/importance, paged and size-capped. */
+/**
+ * List notifications by type/importance, paged and size-capped.
+ *
+ * Note: the underlying query is paged server-side via `NotificationFilter`, so
+ * the returned `PaginatedList.total` reflects the size of the returned page
+ * (after the server applied `offset`/`limit`), not the grand total in the queue.
+ * Use {@link getNotificationOverview} for queue-wide counts by severity.
+ */
 export async function listNotifications(
   client: UnraidClient,
   params: ListNotificationsParams = {},
