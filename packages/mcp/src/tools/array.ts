@@ -20,9 +20,14 @@ import {
   cancelParityCheck,
 } from '@unraid-cli/sdk';
 import { formatResult } from '../format.js';
-import { READ_ONLY_ANNOTATIONS, DESTRUCTIVE_ANNOTATIONS } from './annotations.js';
+import {
+  READ_ONLY_ANNOTATIONS,
+  SAFE_WRITE_ANNOTATIONS,
+  DESTRUCTIVE_ANNOTATIONS,
+} from './annotations.js';
 import { PAGINATION_INPUT } from './pagination.js';
 import { CONFIRM_TOKEN_INPUT } from './confirm.js';
+import { readOnlyBlock } from './policy.js';
 import { runDestructive } from './destructive.js';
 import type { ServerContext } from '../server.js';
 
@@ -160,7 +165,7 @@ export function registerArrayTools(server: McpServer, ctx: ServerContext): void 
     'unraid_parity_start',
     {
       title: 'Start Unraid Parity Check',
-      description: `Start a parity check. With correct=true it writes corrections to parity (a correcting check); correct=false runs a read-only check. Destructive — requires human approval.`,
+      description: `Start a parity check. With correct=true it writes corrections to parity (a correcting check); correct=false runs a read-only check. Destructive (a correcting check writes to parity) and gated: requires human approval (elicitation or a confirmation token).`,
       inputSchema: {
         correct: z
           .boolean()
@@ -183,7 +188,7 @@ export function registerArrayTools(server: McpServer, ctx: ServerContext): void 
     'unraid_parity_cancel',
     {
       title: 'Cancel Unraid Parity Check',
-      description: `Cancel a running parity check. Destructive — requires human approval.`,
+      description: `Cancel a running parity check (discards its progress). Destructive and gated: requires human approval (elicitation or a confirmation token).`,
       inputSchema: { ...CONFIRM_TOKEN_INPUT },
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
@@ -197,39 +202,27 @@ export function registerArrayTools(server: McpServer, ctx: ServerContext): void 
       }),
   );
 
+  // Pause/resume are reversible, low-risk lifecycle toggles — safe writes, not
+  // gated. They still honor the read-only policy floor.
   server.registerTool(
     'unraid_parity_pause',
     {
       title: 'Pause Unraid Parity Check',
-      description: `Pause a running parity check. Requires human approval.`,
-      inputSchema: { ...CONFIRM_TOKEN_INPUT },
-      annotations: DESTRUCTIVE_ANNOTATIONS,
+      description: `Pause a running parity check. Reversible — resume it with unraid_parity_resume.`,
+      inputSchema: {},
+      annotations: SAFE_WRITE_ANNOTATIONS,
     },
-    async ({ confirm_token }) =>
-      runDestructive(server, ctx, {
-        tool: 'unraid_parity_pause',
-        summary: 'Pause the running parity check',
-        targets: ['parity'],
-        token: confirm_token,
-        run: () => pauseParityCheck(ctx.client),
-      }),
+    async () => readOnlyBlock(ctx) ?? formatResult(await pauseParityCheck(ctx.client)),
   );
 
   server.registerTool(
     'unraid_parity_resume',
     {
       title: 'Resume Unraid Parity Check',
-      description: `Resume a paused parity check. Requires human approval.`,
-      inputSchema: { ...CONFIRM_TOKEN_INPUT },
-      annotations: DESTRUCTIVE_ANNOTATIONS,
+      description: `Resume a paused parity check.`,
+      inputSchema: {},
+      annotations: SAFE_WRITE_ANNOTATIONS,
     },
-    async ({ confirm_token }) =>
-      runDestructive(server, ctx, {
-        tool: 'unraid_parity_resume',
-        summary: 'Resume the paused parity check',
-        targets: ['parity'],
-        token: confirm_token,
-        run: () => resumeParityCheck(ctx.client),
-      }),
+    async () => readOnlyBlock(ctx) ?? formatResult(await resumeParityCheck(ctx.client)),
   );
 }

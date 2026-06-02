@@ -337,7 +337,11 @@ export interface ParityActionResult {
   readonly action: ParityAction;
   /** For `start`, whether the check writes corrections to parity. */
   readonly correcting?: boolean;
-  /** The raw server acknowledgement (the API returns an opaque JSON value). */
+  /**
+   * Whether the server accepted the request. The parity mutations return an
+   * opaque JSON payload with no documented shape, so this is `true` whenever the
+   * request completed without error (it does not surface the raw payload).
+   */
   readonly acknowledged: boolean;
 }
 

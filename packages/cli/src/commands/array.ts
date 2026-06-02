@@ -134,23 +134,18 @@ export function registerArrayCommands(
       await runAction(getGlobals(this), (client) => startParityCheck(client, correcting));
     });
 
+  // Pause/resume are reversible toggles — no confirmation gate.
   parity
     .command('pause')
     .description('Pause a running parity check.')
-    .option('--yes', 'Confirm this operation')
     .action(async function (this: Command) {
-      const { yes } = this.opts<{ yes?: boolean }>();
-      if (!confirmDestructive('pause the parity check', yes)) return;
       await runAction(getGlobals(this), (client) => pauseParityCheck(client));
     });
 
   parity
     .command('resume')
     .description('Resume a paused parity check.')
-    .option('--yes', 'Confirm this operation')
     .action(async function (this: Command) {
-      const { yes } = this.opts<{ yes?: boolean }>();
-      if (!confirmDestructive('resume the parity check', yes)) return;
       await runAction(getGlobals(this), (client) => resumeParityCheck(client));
     });
 
