@@ -183,7 +183,7 @@ const CREATE_NOTIFICATION_MUTATION = gql`
  *
  * WARNING: the `id` on the returned notification is NOT a stable handle and
  * cannot be passed to {@link archiveNotification} / {@link unarchiveNotification}
- * — those will fail with a not-found error. Verified against a live Unraid 7.2
+ * — those will fail with a not-found error. Verified against a live Unraid 7.2.3
  * server: `createNotification` echoes back a UUID-based id
  * (`…_<uuid>.notify`), but the notification is actually stored under a different,
  * timestamp-based id (`…_<unixtime>.notify`, with the title slug using
