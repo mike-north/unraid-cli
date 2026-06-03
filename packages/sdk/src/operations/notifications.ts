@@ -208,9 +208,15 @@ async function resolveCanonicalNotificationId(
   );
   if (matches.length === 0) return null;
 
-  // Newest first: pick the largest timestamp (string ISO/epoch compares lexically
-  // for same-format values; fall back to the first match when timestamps are absent).
-  const newest = matches.reduce((a, b) => ((b.timestamp ?? '') > (a.timestamp ?? '') ? b : a));
+  // Pick the most recent match by parsed timestamp (lexical string compare is
+  // unreliable across mixed ISO offsets/precision). `Date.parse` yields NaN for
+  // absent/unparseable values; treat those as oldest so a parseable entry wins,
+  // and keep the first match when nothing parses.
+  const parse = (ts: string | null | undefined): number => {
+    const ms = ts == null ? NaN : Date.parse(ts);
+    return Number.isNaN(ms) ? -Infinity : ms;
+  };
+  const newest = matches.reduce((a, b) => (parse(b.timestamp) > parse(a.timestamp) ? b : a));
   return newest.id;
 }
 

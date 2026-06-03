@@ -162,6 +162,7 @@ describe('notification control', () => {
     subject: 'Nightly backup',
     description: 'completed',
     importance: 'INFO',
+    link: null,
     type: 'UNREAD',
     timestamp: '2026-01-01T00:00:00Z',
     formattedTimestamp: 'Jan 1',
