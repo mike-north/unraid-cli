@@ -33,7 +33,7 @@ export interface GlobalOptions {
 }
 
 /**
- * Raw option bag returned by `commander`'s `.optsWithGlobals()`.
+ * Raw option bag read from the root program via `program.opts()`.
  * All fields are optional because Commander omits absent flags entirely.
  */
 export interface RawGlobalOpts {
