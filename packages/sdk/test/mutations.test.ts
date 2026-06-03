@@ -167,6 +167,12 @@ describe('notification control', () => {
     formattedTimestamp: 'Jan 1',
   };
 
+  /** A ListNotifications handler returning the given unread items. */
+  const listHandler = (items: unknown[]) =>
+    graphql.query('ListNotifications', () =>
+      HttpResponse.json({ data: { notifications: { list: items } } }),
+    );
+
   it('forwards the input and omits link when not provided', async () => {
     let captured: Record<string, unknown> | undefined;
     server.use(
@@ -174,6 +180,8 @@ describe('notification control', () => {
         captured = variables;
         return HttpResponse.json({ data: { createNotification: created } });
       }),
+      // No matching unread entry -> canonical-id lookup falls back to create response.
+      listHandler([]),
     );
     const result = await createNotification(client, {
       title: 'Backup done',
@@ -201,6 +209,7 @@ describe('notification control', () => {
         captured = variables;
         return HttpResponse.json({ data: { createNotification: created } });
       }),
+      listHandler([]),
     );
     await createNotification(client, {
       title: 't',
@@ -212,6 +221,50 @@ describe('notification control', () => {
     expect(captured).toMatchObject({
       input: { link: 'https://example.test', importance: 'WARNING' },
     });
+  });
+
+  it('resolves the canonical id from the unread queue by matching content', async () => {
+    // create echoes a non-canonical UUID id; the server lists it under a different id.
+    server.use(
+      graphql.mutation('CreateNotification', () =>
+        HttpResponse.json({ data: { createNotification: { ...created, id: 'uuid-echo-id' } } }),
+      ),
+      listHandler([
+        // a same-titled older entry, and our just-created one (newer timestamp)
+        { ...created, id: 'canonical-old', timestamp: '2026-01-01T00:00:00Z' },
+        { ...created, id: 'canonical-new', timestamp: '2026-06-03T12:00:00Z' },
+        { ...created, id: 'unrelated', title: 'something else' },
+      ]),
+    );
+    const result = await createNotification(client, {
+      title: created.title,
+      subject: created.subject,
+      description: created.description,
+      importance: 'INFO',
+    });
+    expect(result.success).toBe(true);
+    // Newest content-match wins, replacing the echoed UUID id.
+    if (result.success) expect(result.data.id).toBe('canonical-new');
+  });
+
+  it('falls back to the create response id when the unread lookup is forbidden', async () => {
+    server.use(
+      graphql.mutation('CreateNotification', () =>
+        HttpResponse.json({ data: { createNotification: { ...created, id: 'uuid-echo-id' } } }),
+      ),
+      // Simulate a write-only key: listing notifications is forbidden.
+      graphql.query('ListNotifications', () =>
+        HttpResponse.json({ errors: [{ message: 'Forbidden resource' }] }, { status: 403 }),
+      ),
+    );
+    const result = await createNotification(client, {
+      title: created.title,
+      subject: created.subject,
+      description: created.description,
+      importance: 'INFO',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.id).toBe('uuid-echo-id');
   });
 
   it('archives a notification', async () => {

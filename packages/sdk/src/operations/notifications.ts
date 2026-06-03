@@ -179,20 +179,55 @@ const CREATE_NOTIFICATION_MUTATION = gql`
 `;
 
 /**
+ * Resolve the server's canonical id for a just-created notification.
+ *
+ * Unraid's `createNotification` echoes back a UUID-based id, but stores the
+ * notification under a *different*, timestamp-based id (verified on 7.2.3), so
+ * the returned id cannot be used with archive/unarchive. This looks up the
+ * unread queue and matches by content (title/subject/description/importance) to
+ * recover the usable id.
+ *
+ * Best-effort: returns `null` if the lookup fails (e.g. a write-only key that
+ * cannot read notifications) or no match is found, so the caller can fall back
+ * to the raw create response. When several entries match the same content, the
+ * most recent (by `timestamp`) wins — that is the one just created.
+ */
+async function resolveCanonicalNotificationId(
+  client: UnraidClient,
+  created: NotificationDetail,
+): Promise<string | null> {
+  const listed = await listNotifications(client, { type: 'UNREAD', limit: 100 });
+  if (!listed.success) return null;
+
+  const matches = listed.data.items.filter(
+    (n) =>
+      n.title === created.title &&
+      n.subject === created.subject &&
+      n.description === created.description &&
+      n.importance === created.importance,
+  );
+  if (matches.length === 0) return null;
+
+  // Newest first: pick the largest timestamp (string ISO/epoch compares lexically
+  // for same-format values; fall back to the first match when timestamps are absent).
+  const newest = matches.reduce((a, b) => ((b.timestamp ?? '') > (a.timestamp ?? '') ? b : a));
+  return newest.id;
+}
+
+/**
  * Create a new notification.
  *
- * WARNING: the `id` on the returned notification is NOT a stable handle and
- * cannot be passed to {@link archiveNotification} / {@link unarchiveNotification}
- * — those will fail with a not-found error. Verified against a live Unraid 7.2.3
- * server: `createNotification` echoes back a UUID-based id
- * (`…_<uuid>.notify`), but the notification is actually stored under a different,
- * timestamp-based id (`…_<unixtime>.notify`, with the title slug using
- * underscores). To act on a just-created notification, list the unread queue via
- * {@link listNotifications} and use the `id` the server reports there.
+ * Returns the created notification with a usable `id`. Unraid's API echoes back
+ * a non-canonical id from the create mutation (it stores the notification under
+ * a different, timestamp-based id), so this performs a best-effort lookup of the
+ * unread queue to resolve the canonical id before returning — making the
+ * create → {@link archiveNotification} / {@link unarchiveNotification} flow work
+ * without the caller having to list first.
  *
- * TODO(unraid-cli): investigate whether the returned id can be normalized to (or
- * replaced with) the server's canonical id so the create→archive flow works
- * without an intervening list. Tracked as a follow-up.
+ * If that lookup cannot run (e.g. an API key with notification *write* but not
+ * *read* scope) or finds no match, the raw create response is returned
+ * unchanged; in that case its `id` may not be usable for archive/unarchive and
+ * the caller should list the unread queue to obtain the canonical id.
  */
 export async function createNotification(
   client: UnraidClient,
@@ -212,7 +247,9 @@ export async function createNotification(
       CREATE_NOTIFICATION_MUTATION,
       variables,
     );
-    return success(data.createNotification);
+    const created = data.createNotification;
+    const canonicalId = await resolveCanonicalNotificationId(client, created);
+    return success(canonicalId === null ? created : { ...created, id: canonicalId });
   } catch (error) {
     return failure(toUnraidError(error));
   }
