@@ -178,7 +178,22 @@ const CREATE_NOTIFICATION_MUTATION = gql`
   }
 `;
 
-/** Create a new notification. */
+/**
+ * Create a new notification.
+ *
+ * WARNING: the `id` on the returned notification is NOT a stable handle and
+ * cannot be passed to {@link archiveNotification} / {@link unarchiveNotification}
+ * — those will fail with a not-found error. Verified against a live Unraid 7.2
+ * server: `createNotification` echoes back a UUID-based id
+ * (`…_<uuid>.notify`), but the notification is actually stored under a different,
+ * timestamp-based id (`…_<unixtime>.notify`, with the title slug using
+ * underscores). To act on a just-created notification, list the unread queue via
+ * {@link listNotifications} and use the `id` the server reports there.
+ *
+ * TODO(unraid-cli): investigate whether the returned id can be normalized to (or
+ * replaced with) the server's canonical id so the create→archive flow works
+ * without an intervening list. Tracked as a follow-up.
+ */
 export async function createNotification(
   client: UnraidClient,
   input: NewNotification,
