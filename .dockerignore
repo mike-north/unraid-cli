@@ -1,0 +1,36 @@
+# Build artifacts (rebuilt inside the image)
+**/dist
+**/*.tsbuildinfo
+
+# Dependencies (reinstalled inside the image)
+**/node_modules
+
+# VCS & worktrees
+.git
+.gitignore
+**/.worktrees
+
+# Local/dev-only
+scratch
+**/coverage
+**/temp
+.changeset
+*.local.*
+.DS_Store
+
+# Editor / CI config not needed in the image
+.github
+.husky
+.vscode
+eslint.config.js
+prettier.config.js
+knip.json
+syncpack.config.cjs
+codegen.ts
+README.md
+CLAUDE.md
+LICENSE
+
+# Tests (not needed at runtime)
+**/test
+**/*.test.ts
