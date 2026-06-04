@@ -1,6 +1,6 @@
 # unraid-toolkit
 
-[![CI](https://github.com/mike-north/unraid-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/mike-north/unraid-cli/actions/workflows/ci.yml)
+[![CI](https://github.com/mike-north/unraid-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/mike-north/unraid-toolkit/actions/workflows/ci.yml)
 
 A toolkit for observing and controlling an [Unraid](https://unraid.net) server through its built-in GraphQL API, structured as a **core SDK with thin CLI and MCP wrappers**.
 

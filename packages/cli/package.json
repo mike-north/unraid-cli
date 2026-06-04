@@ -5,11 +5,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mike-north/unraid-cli.git",
+    "url": "git+https://github.com/mike-north/unraid-toolkit.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/mike-north/unraid-cli#readme",
-  "bugs": "https://github.com/mike-north/unraid-cli/issues",
+  "homepage": "https://github.com/mike-north/unraid-toolkit#readme",
+  "bugs": "https://github.com/mike-north/unraid-toolkit/issues",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
