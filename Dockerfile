@@ -55,6 +55,8 @@ ENV NODE_ENV=production \
 
 # Run as the unprivileged `node` user that the base image already provides.
 COPY --from=builder --chown=node:node /app ./
+# Ship the license with the image (compliance / downstream redistribution).
+COPY --chown=node:node LICENSE ./LICENSE
 USER node
 
 EXPOSE 3000

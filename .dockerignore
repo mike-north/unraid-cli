@@ -29,7 +29,7 @@ syncpack.config.cjs
 codegen.ts
 README.md
 CLAUDE.md
-LICENSE
+# LICENSE is intentionally NOT ignored — it is copied into the published image.
 
 # Tests (not needed at runtime)
 **/test
