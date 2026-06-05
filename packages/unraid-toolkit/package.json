@@ -1,12 +1,12 @@
 {
-  "name": "@unraid-toolkit/mcp",
+  "name": "unraid-toolkit",
   "version": "0.1.0",
-  "description": "Model Context Protocol server for the Unraid GraphQL API, built on @unraid-toolkit/sdk.",
+  "description": "Unraid toolkit umbrella — re-exports the SDK, CLI, and MCP server, and ships the `unraid` command.",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mike-north/unraid-toolkit.git",
-    "directory": "packages/mcp"
+    "directory": "packages/unraid-toolkit"
   },
   "homepage": "https://github.com/mike-north/unraid-toolkit#readme",
   "bugs": "https://github.com/mike-north/unraid-toolkit/issues",
@@ -14,7 +14,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "unraid-mcp": "./dist/index.js"
+    "unraid": "./dist/bin.js"
   },
   "files": [
     "dist"
@@ -23,12 +23,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "@unraid-toolkit/sdk": "workspace:*",
-    "express": "^5.2.1",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.0"
+    "@unraid-toolkit/cli": "workspace:*",
+    "@unraid-toolkit/mcp": "workspace:*",
+    "@unraid-toolkit/sdk": "workspace:*"
   }
 }
