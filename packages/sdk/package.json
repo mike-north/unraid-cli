@@ -1,6 +1,6 @@
 {
   "name": "@unraid-toolkit/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Core SDK for the Unraid GraphQL API: typed client, domain operations, and a structured result envelope. No protocol or UI concerns.",
   "license": "MIT",
   "repository": {
